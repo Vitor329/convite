@@ -153,13 +153,18 @@
 <section id="rsvp" class="bg-white py-12 md:py-20 fade-in">
     <div class="container mx-auto px-6 max-w-2xl text-center">
         <h2 class="text-3xl md:text-4xl font-bold mb-4">Confirme sua Presença</h2>
-        <p class="mb-8">Por favor, confirme sua presença até [Data Limite para RSVP].</p>
-        <form id="rsvpForm" class="space-y-4">
+        <p class="mb-8">Por favor, confirme sua presença até 19 de Setembro de 2025.</p>
+        
+        <!-- Formulário atualizado para usar Formspree -->
+        <form id="rsvpForm" action="https://formspree.io/f/xandrqqr" method="POST" class="space-y-4">
             <div>
-                <input type="text" id="guestName" placeholder="Seu nome completo" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c08484]" required>
+                <!-- Adicionado o atributo 'name' para o Formspree -->
+                <input type="text" id="guestName" name="guestName" placeholder="Seu nome completo" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c08484]" required>
             </div>
             <div>
-                <select id="attendance" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c08484]">
+                 <!-- Adicionado o atributo 'name' para o Formspree -->
+                <select id="attendance" name="attendance" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c08484]" required>
+                    <option value="" disabled selected>Você irá ao evento?</option>
                     <option value="yes">Sim, estarei lá!</option>
                     <option value="no">Não poderei comparecer.</option>
                 </select>
@@ -231,26 +236,51 @@
 
     fadeInElements.forEach(el => observer.observe(el));
 
-    // Simulação de envio de RSVP
-    const rsvpForm = document.getElementById('rsvpForm');
+const rsvpForm = document.getElementById('rsvpForm');
     const formMessage = document.getElementById('formMessage');
-    rsvpForm.addEventListener('submit', (e) => {
+
+    rsvpForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Pega os valores para usar na mensagem de feedback
         const guestName = document.getElementById('guestName').value;
         const attendance = document.getElementById('attendance').value;
-        
-        if (attendance === 'yes') {
-            formMessage.textContent = `Obrigado por confirmar, ${guestName}! Esperamos você lá! 😊`;
-            formMessage.style.color = 'green';
-        } else {
-            formMessage.textContent = `Que pena que você não poderá vir, ${guestName}. Sentiremos sua falta. �`;
-            formMessage.style.color = 'orange';
-        }
-        
-        rsvpForm.reset();
-        setTimeout(() => formMessage.textContent = '', 5000);
-    });
+        const formData = new FormData(rsvpForm);
 
+        try {
+            // Envia os dados para o Formspree
+            const response = await fetch(rsvpForm.action, {
+                method: rsvpForm.method,
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            // Se o envio funcionar, mostra a mensagem de sucesso
+            if (response.ok) {
+                if (attendance === 'yes') {
+                    formMessage.textContent = `Obrigado por confirmar, ${guestName}! Esperamos você lá! 😊`;
+                    formMessage.style.color = 'green';
+                } else {
+                    formMessage.textContent = `Que pena que você não poderá vir, ${guestName}. Sentiremos sua falta. 😢`;
+                    formMessage.style.color = 'orange';
+                }
+                rsvpForm.reset();
+            } else {
+                 // Se o Formspree retornar um erro
+                throw new Error('Ocorreu um problema ao enviar sua confirmação.');
+            }
+        } catch (error) {
+            // Se houver um erro de rede ou outro problema
+            formMessage.textContent = 'Erro ao enviar. Por favor, tente novamente mais tarde.';
+            formMessage.style.color = 'red';
+            console.error('Erro no envio do formulário:', error);
+        } finally {
+            // Limpa a mensagem após 5 segundos
+            setTimeout(() => formMessage.textContent = '', 5000);
+        }
+    });
     // --- LÓGICA PARA CRIAR CORAÇÕES DE FUNDO ---
     function createHearts() {
         const container = document.getElementById('hearts-background');
@@ -285,6 +315,7 @@
 </html>
 
 �
+
 
 
 
