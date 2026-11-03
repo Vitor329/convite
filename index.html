@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nosso Casamento - Esther e Willian</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Biblioteca para gerar o QR Code do Pix -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -48,6 +50,9 @@
             position: absolute;
             color: #c08484; /* Cor rosa queimado que você escolheu */
         }
+        /* Modal do Pix */
+        #pixModal.hidden { display: none; }
+        #pixQrCode svg { width: 100%; height: auto; display: block; }
     </style>
 </head>
 <body class="antialiased">
@@ -175,6 +180,66 @@
     </div>
 </section>
 
+<!-- Divisória Decorativa -->
+<div class="w-full max-w-lg mx-auto flex items-center justify-center py-8 md:py-12 fade-in px-4">
+    <div class="flex-grow h-px bg-red-200"></div>
+    <svg class="w-8 h-8 mx-4 text-red-800 opacity-70" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+    <div class="flex-grow h-px bg-red-200"></div>
+</div>
+
+<!-- Lista de Presentes -->
+<section id="presentes" class="py-12 md:py-20 fade-in">
+    <div class="container mx-auto px-6 max-w-5xl text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Lista de Presentes</h2>
+        <p class="mb-10 max-w-2xl mx-auto leading-relaxed">
+            Sua presença é o nosso maior presente! Mas, se quiser nos presentear, escolha um item abaixo e faça um Pix pelo QR Code. 🎁
+        </p>
+        <!-- Os presentes são montados automaticamente a partir da lista no script (const presentes) -->
+        <div id="giftList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+</section>
+
+<!-- Modal do Pix -->
+<div id="pixModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4" role="dialog" aria-modal="true" aria-labelledby="pixModalTitle">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-full overflow-y-auto p-6 relative text-center">
+        <button type="button" id="pixClose" class="absolute top-3 right-4 text-3xl leading-none text-slate-400 hover:text-slate-700" aria-label="Fechar">&times;</button>
+        <p class="text-sm uppercase tracking-wider text-[#c08484] font-semibold">Presentear com Pix</p>
+        <h3 id="pixModalTitle" class="text-2xl font-bold mt-1"></h3>
+
+        <!-- Campo de valor (aparece só na opção "valor livre") -->
+        <div id="pixCustomAmountWrap" class="hidden mt-4 text-left">
+            <label for="pixCustomAmount" class="block text-sm mb-1">Quanto você quer presentear? (R$)</label>
+            <div class="flex gap-2">
+                <input type="text" inputmode="decimal" id="pixCustomAmount" placeholder="Ex.: 100,00" class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c08484]">
+                <button type="button" id="pixCustomAmountBtn" class="bg-[#c08484] text-white px-4 rounded-lg hover:bg-[#792626] transition duration-300 font-semibold">Gerar</button>
+            </div>
+            <p id="pixCustomAmountError" class="text-sm text-red-600 mt-1"></p>
+        </div>
+
+        <div id="pixPaymentArea">
+            <p id="pixAmount" class="text-3xl font-bold text-[#792626] mt-3"></p>
+            <div id="pixQrCode" class="w-56 max-w-full mx-auto my-4 p-2 bg-white border border-gray-200 rounded-lg"></div>
+            <p class="text-sm text-slate-500 mb-4">Abra o app do seu banco, escolha <strong>Pix &rarr; Ler QR Code</strong> e aponte a câmera.</p>
+
+            <label for="pixCopyPaste" class="block text-sm text-left mb-1">Ou use o Pix Copia e Cola:</label>
+            <textarea id="pixCopyPaste" rows="3" readonly class="w-full p-2 text-xs border border-gray-300 rounded-lg bg-gray-50 resize-none break-all"></textarea>
+            <button type="button" id="pixCopyBtn" class="w-full mt-2 bg-[#c08484] text-white px-6 py-3 rounded-lg hover:bg-[#792626] transition duration-300 font-semibold">Copiar código Pix</button>
+            <p class="text-xs text-slate-500 mt-3">Recebedor: <span id="pixReceiver"></span></p>
+
+            <!-- Aviso opcional para o casal saber quem presenteou -->
+            <form id="giftNotifyForm" class="mt-6 pt-6 border-t border-gray-200 space-y-3 text-left">
+                <p class="text-sm text-center">Já fez o Pix? Deixe seu nome e um recado para os noivos 💌</p>
+                <input type="text" id="giftGuestName" placeholder="Seu nome" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c08484]" required>
+                <textarea id="giftGuestMessage" rows="2" placeholder="Mensagem (opcional)" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c08484] resize-none"></textarea>
+                <button type="submit" class="w-full border-2 border-[#c08484] text-[#792626] px-6 py-2 rounded-lg hover:bg-[#c08484] hover:text-white transition duration-300 font-semibold">Já fiz o Pix, avisar os noivos</button>
+                <p id="giftNotifyMessage" class="text-sm text-center"></p>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Rodapé -->
 <footer class="text-center py-8">
     <p class="flex items-center justify-center">
@@ -188,6 +253,37 @@
 
 <script>
     // --- CONFIGURAÇÕES ---
+
+    // ===================== LISTA DE PRESENTES / PIX =====================
+    // IMPORTANTE: Preencha os dados do Pix de quem vai receber os presentes.
+    const pixConfig = {
+        // Chave Pix. Formatos aceitos:
+        //   CPF/CNPJ: só números (ex.: '12345678900')
+        //   Celular:  com +55 e DDD (ex.: '+5511999998888')
+        //   E-mail:   (ex.: 'casal@email.com')
+        //   Chave aleatória: (ex.: '123e4567-e89b-12d3-a456-426614174000')
+        chave: 'casal@email.com', // <-- Altere aqui!
+        nome: 'Esther e Willian',  // Nome do recebedor (até 25 letras)
+        cidade: 'Sao Paulo',       // Cidade do recebedor (até 15 letras)
+    };
+
+    // Adicione, remova ou altere os presentes aqui.
+    //   nome:   nome do presente
+    //   valor:  valor em reais (use ponto para centavos, ex.: 89.90)
+    //   icone:  um emoji para ilustrar (usado quando não há imagem)
+    //   imagem: (opcional) nome do arquivo da foto do presente, ex.: 'presente1.jpg'
+    const presentes = [
+        { nome: 'Jogo de panelas',            valor: 350.00, icone: '🍳' },
+        { nome: 'Jogo de cama casal',         valor: 220.00, icone: '🛏️' },
+        { nome: 'Cafeteira',                  valor: 180.00, icone: '☕' },
+        { nome: 'Jantar romântico',           valor: 150.00, icone: '🍷' },
+        { nome: 'Jogo de toalhas',            valor: 120.00, icone: '🛁' },
+        { nome: 'Ajuda na lua de mel',        valor: 300.00, icone: '✈️' },
+    ];
+
+    // Mostra também um cartão onde o convidado escolhe o valor (true = sim, false = não)
+    const permitirValorLivre = true;
+    // ====================================================================
     // IMPORTANTE: Altere a data e hora do casamento aqui.
     // Formato: AAAA-MM-DDTHH:MM:SS (Ano-Mês-DiaT Hora:Minuto:Segundo)
     const weddingDateStr = '2025-10-19T12:00:00'; // <-- Altere esta data de exemplo!
@@ -309,6 +405,212 @@ const rsvpForm = document.getElementById('rsvpForm');
         }
     }
     createHearts();
+
+    // --- LÓGICA DA LISTA DE PRESENTES E PIX ---
+
+    const formatBRL = (valor) => valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    // Remove acentos e caracteres especiais (exigência do padrão Pix para nome/cidade)
+    const pixText = (texto, max) => texto
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^A-Za-z0-9 ]/g, '')
+        .toUpperCase().trim().substring(0, max);
+
+    // Monta um campo no formato do Pix: ID + tamanho (2 dígitos) + valor
+    const pixField = (id, valor) => id + String(valor.length).padStart(2, '0') + valor;
+
+    // CRC16-CCITT (polinômio 0x1021, valor inicial 0xFFFF), exigido no final do código Pix
+    function crc16(payload) {
+        let crc = 0xFFFF;
+        for (let i = 0; i < payload.length; i++) {
+            crc ^= payload.charCodeAt(i) << 8;
+            for (let j = 0; j < 8; j++) {
+                crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+                crc &= 0xFFFF;
+            }
+        }
+        return crc.toString(16).toUpperCase().padStart(4, '0');
+    }
+
+    // Gera o código "Pix Copia e Cola" (BR Code estático) com o valor informado
+    function gerarCodigoPix(valor) {
+        const chave = pixConfig.chave.trim();
+        const payload =
+            pixField('00', '01') +
+            pixField('26', pixField('00', 'br.gov.bcb.pix') + pixField('01', chave)) +
+            pixField('52', '0000') +
+            pixField('53', '986') +
+            (valor > 0 ? pixField('54', valor.toFixed(2)) : '') +
+            pixField('58', 'BR') +
+            pixField('59', pixText(pixConfig.nome, 25) || 'RECEBEDOR') +
+            pixField('60', pixText(pixConfig.cidade, 15) || 'BRASIL') +
+            pixField('62', pixField('05', '***')) +
+            '6304';
+        return payload + crc16(payload);
+    }
+
+    const giftList = document.getElementById('giftList');
+    const pixModal = document.getElementById('pixModal');
+    const pixModalTitle = document.getElementById('pixModalTitle');
+    const pixAmount = document.getElementById('pixAmount');
+    const pixQrCode = document.getElementById('pixQrCode');
+    const pixCopyPaste = document.getElementById('pixCopyPaste');
+    const pixCopyBtn = document.getElementById('pixCopyBtn');
+    const pixPaymentArea = document.getElementById('pixPaymentArea');
+    const pixCustomAmountWrap = document.getElementById('pixCustomAmountWrap');
+    const pixCustomAmount = document.getElementById('pixCustomAmount');
+    const pixCustomAmountError = document.getElementById('pixCustomAmountError');
+    const giftNotifyForm = document.getElementById('giftNotifyForm');
+    const giftNotifyMessage = document.getElementById('giftNotifyMessage');
+    document.getElementById('pixReceiver').textContent = pixConfig.nome;
+
+    let presenteAtual = null;
+
+    function criarCartaoPresente(presente, valorLivre) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition duration-300';
+
+        const topo = document.createElement('div');
+        topo.className = 'h-40 bg-red-50 flex items-center justify-center text-6xl';
+        if (presente.imagem) {
+            const img = document.createElement('img');
+            img.src = presente.imagem;
+            img.alt = presente.nome;
+            img.className = 'w-full h-full object-cover';
+            topo.appendChild(img);
+        } else {
+            topo.textContent = presente.icone || '🎁';
+        }
+
+        const corpo = document.createElement('div');
+        corpo.className = 'p-6 flex flex-col flex-grow';
+        const titulo = document.createElement('h3');
+        titulo.className = 'text-xl font-semibold mb-2';
+        titulo.textContent = presente.nome;
+        const preco = document.createElement('p');
+        preco.className = 'text-2xl font-bold text-[#792626] mb-4';
+        preco.textContent = valorLivre ? 'Você escolhe' : formatBRL(presente.valor);
+        const botao = document.createElement('button');
+        botao.type = 'button';
+        botao.className = 'mt-auto w-full bg-[#c08484] text-white px-6 py-3 rounded-full hover:bg-[#792626] transition duration-300 font-semibold';
+        botao.textContent = 'Presentear';
+        botao.addEventListener('click', () => abrirPix(presente, valorLivre));
+
+        corpo.append(titulo, preco, botao);
+        card.append(topo, corpo);
+        return card;
+    }
+
+    presentes.forEach(p => giftList.appendChild(criarCartaoPresente(p, false)));
+    if (permitirValorLivre) {
+        giftList.appendChild(criarCartaoPresente({ nome: 'Presente com valor livre', icone: '💝' }, true));
+    }
+
+    function mostrarPagamento(valor) {
+        const codigo = gerarCodigoPix(valor);
+        pixAmount.textContent = formatBRL(valor);
+        pixCopyPaste.value = codigo;
+        pixCopyBtn.textContent = 'Copiar código Pix';
+
+        pixQrCode.innerHTML = '';
+        if (typeof qrcode === 'function') {
+            const qr = qrcode(0, 'M');
+            qr.addData(codigo);
+            qr.make();
+            pixQrCode.innerHTML = qr.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
+        } else {
+            pixQrCode.innerHTML = '<p class="text-sm text-slate-500 p-4">Não foi possível carregar o QR Code. Use o Pix Copia e Cola abaixo.</p>';
+        }
+        pixPaymentArea.classList.remove('hidden');
+    }
+
+    function abrirPix(presente, valorLivre) {
+        presenteAtual = presente;
+        pixModalTitle.textContent = presente.nome;
+        giftNotifyForm.reset();
+        giftNotifyMessage.textContent = '';
+        pixCustomAmountError.textContent = '';
+
+        if (valorLivre) {
+            pixCustomAmountWrap.classList.remove('hidden');
+            pixPaymentArea.classList.add('hidden');
+            pixCustomAmount.value = '';
+        } else {
+            pixCustomAmountWrap.classList.add('hidden');
+            mostrarPagamento(presente.valor);
+        }
+
+        pixModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        if (valorLivre) pixCustomAmount.focus();
+    }
+
+    function fecharPix() {
+        pixModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function gerarValorLivre() {
+        // Aceita "100", "100,50", "1.250,00" ou "100.50"
+        let texto = pixCustomAmount.value.trim().replace(/[R$\s]/g, '');
+        if (texto.includes(',')) texto = texto.replace(/\./g, '').replace(',', '.');
+        const valor = Math.round(parseFloat(texto) * 100) / 100;
+        if (!valor || valor <= 0) {
+            pixCustomAmountError.textContent = 'Digite um valor válido.';
+            pixPaymentArea.classList.add('hidden');
+            return;
+        }
+        pixCustomAmountError.textContent = '';
+        presenteAtual = { ...presenteAtual, valor };
+        mostrarPagamento(valor);
+    }
+
+    document.getElementById('pixCustomAmountBtn').addEventListener('click', gerarValorLivre);
+    pixCustomAmount.addEventListener('keydown', (e) => { if (e.key === 'Enter') gerarValorLivre(); });
+    document.getElementById('pixClose').addEventListener('click', fecharPix);
+    pixModal.addEventListener('click', (e) => { if (e.target === pixModal) fecharPix(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pixModal.classList.contains('hidden')) fecharPix(); });
+
+    pixCopyBtn.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(pixCopyPaste.value);
+        } catch (err) {
+            // Alternativa para navegadores sem acesso à área de transferência
+            pixCopyPaste.select();
+            document.execCommand('copy');
+        }
+        pixCopyBtn.textContent = 'Código copiado! ✔';
+        setTimeout(() => pixCopyBtn.textContent = 'Copiar código Pix', 3000);
+    });
+
+    // Envia um aviso aos noivos (pelo mesmo Formspree da confirmação de presença)
+    giftNotifyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('giftGuestName').value;
+        const formData = new FormData();
+        formData.append('_subject', `Novo presente: ${presenteAtual.nome}`);
+        formData.append('tipo', 'Presente via Pix');
+        formData.append('guestName', nome);
+        formData.append('presente', presenteAtual.nome);
+        formData.append('valor', formatBRL(presenteAtual.valor || 0));
+        formData.append('mensagem', document.getElementById('giftGuestMessage').value);
+
+        try {
+            const response = await fetch(rsvpForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!response.ok) throw new Error('Falha no envio');
+            giftNotifyMessage.textContent = `Muito obrigado pelo presente, ${nome}! 💖`;
+            giftNotifyMessage.style.color = 'green';
+            giftNotifyForm.reset();
+        } catch (error) {
+            giftNotifyMessage.textContent = 'Erro ao enviar o aviso. Tente novamente mais tarde.';
+            giftNotifyMessage.style.color = 'red';
+            console.error('Erro no aviso de presente:', error);
+        }
+    });
 
 </script>
 </body>
