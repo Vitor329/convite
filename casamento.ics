@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Convite//Casamento Marcia e Alessandro//PT
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:casamento-marcia-alessandro-20270403@convite
+DTSTAMP:20261127T120000Z
+DTSTART:20270403T190000Z
+DTEND:20270403T203000Z
+SUMMARY:Casamento de Márcia & Alessandro
+LOCATION:Igreja Matriz Nossa Senhora do Rosário\, Rua Agostinho Franco de Oliveira\, 257 - Jardim Parque das Palmeiras
+DESCRIPTION:Cerimônia de casamento de Márcia & Alessandro às 16:00.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Casamento de Márcia & Alessandro amanhã
+TRIGGER:-P1D
+END:VALARM
+END:VEVENT
+END:VCALENDAR
