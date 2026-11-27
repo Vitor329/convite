@@ -4,7 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nosso Casamento - Márcia & Alessandro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="description" content="Com muito amor, começamos um novo capítulo juntos! Casamento de Márcia &amp; Alessandro em 3 de abril de 2027.">
+    <meta name="theme-color" content="#1b3a6b">
+
+    <!-- Prévia ao compartilhar o link (WhatsApp, Facebook etc.).
+         IMPORTANTE: se o endereço do site mudar, atualize as duas URLs abaixo. -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:url" content="https://convite-esther-willian.vercel.app/">
+    <meta property="og:title" content="Márcia &amp; Alessandro · 3 de abril de 2027">
+    <meta property="og:description" content="Com muito amor, começamos um novo capítulo juntos! Veja os detalhes, confirme sua presença e conheça nossa lista de presentes.">
+    <meta property="og:image" content="https://convite-esther-willian.vercel.app/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Márcia e Alessandro">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Ícone da aba do navegador -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <!-- Estilos do Tailwind já gerados (veja o README para gerar de novo) -->
+    <link rel="stylesheet" href="styles.css">
     <!-- Biblioteca para gerar o QR Code do Pix -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,20 +56,79 @@
             background-size: cover;
             background-position: center 15%; /* mantém os rostos do casal visíveis */
         }
-        /* Estilos para o fundo de corações */
-        #hearts-background {
+        html { scroll-behavior: smooth; }
+        header[id], section[id] { scroll-margin-top: 64px; }
+
+        /* ---------- Fundo animado: aquarela + flores caindo ---------- */
+        #bg-anim {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
+            z-index: -1; /* atrás de todo o conteúdo */
+            pointer-events: none; /* permite clicar através do fundo */
             overflow: hidden;
-            z-index: -1; /* Coloca o fundo atrás de todo o conteúdo */
-            pointer-events: none; /* Permite clicar através dos corações */
         }
-        .heart {
-            position: absolute;
-            color: #8fb3e0; /* azul claro das flores do convite */
+        .blob-wrap { position: absolute; will-change: transform; }
+        .blob {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: .55;
+            animation: drift ease-in-out infinite alternate;
+        }
+        .blob-cursor {
+            position: absolute; left: 0; top: 0;
+            width: 340px; height: 340px; margin: -170px 0 0 -170px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(143,179,224,.55) 0%, rgba(143,179,224,0) 70%);
+            filter: blur(20px);
+            opacity: 0;
+            transition: opacity .6s ease;
+            will-change: transform;
+        }
+        @keyframes drift {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(var(--dx), var(--dy)) scale(1.15); }
+            100% { transform: translate(calc(var(--dx) * -0.6), calc(var(--dy) * 0.8)) scale(.95); }
+        }
+        .petal { position: absolute; top: -40px; animation: fall linear infinite; }
+        .petal svg { width: 100%; height: 100%; display: block; }
+        @keyframes fall {
+            0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            8%   { opacity: .9; }
+            25%  { transform: translate(var(--dx), 28vh) rotate(90deg); }
+            50%  { transform: translate(calc(var(--dx) * -1), 56vh) rotate(200deg); }
+            75%  { transform: translate(var(--dx), 84vh) rotate(290deg); }
+            92%  { opacity: .9; }
+            100% { transform: translate(0, 112vh) rotate(380deg); opacity: 0; }
+        }
+        /* Quem pede "reduzir movimento" no celular/computador vê o fundo parado */
+        @media (prefers-reduced-motion: reduce) {
+            .blob { animation: none; }
+            .petal, .blob-cursor { display: none; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ---------- Flores do convite nos cantos ---------- */
+        .flores { position: absolute; pointer-events: none; user-select: none; z-index: 0; height: auto; }
+
+        /* ---------- Menu fixo ---------- */
+        #menu { color: #fff; transition: background-color .3s ease, color .3s ease, box-shadow .3s ease; }
+        #menu a, #menu button { color: inherit; }
+        #menu.scrolled, #menu.open {
+            background: rgba(255, 255, 255, .94);
+            color: #1b3a6b;
+            box-shadow: 0 2px 14px rgba(27, 58, 107, .12);
+            backdrop-filter: blur(6px);
+        }
+        #menu:not(.scrolled):not(.open) { text-shadow: 0 1px 6px rgba(0, 0, 0, .35); }
+        @media (max-width: 767px) {
+            #menu.open #menuLinks {
+                display: flex; flex-direction: column; gap: 4px;
+                position: absolute; top: 56px; left: 0; right: 0;
+                background: #fff; padding: 8px 24px 18px;
+                box-shadow: 0 10px 20px rgba(27, 58, 107, .12);
+            }
+            #menu.open #menuLinks a { display: block; padding: 10px 0; border-bottom: 1px solid #e2ebf7; }
         }
         .script { font-family: 'Playfair Display', serif; font-style: italic; }
         /* Modal do Pix */
@@ -58,11 +138,28 @@
 </head>
 <body class="antialiased">
 
-<!-- Container para os corações de fundo -->
-<div id="hearts-background"></div>
+<!-- Fundo animado (aquarela + flores), montado pelo script -->
+<div id="bg-anim" aria-hidden="true"></div>
+
+<!-- Menu fixo -->
+<nav id="menu" class="fixed top-0 inset-x-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
+        <a href="#inicio" class="script text-2xl">M <span class="text-xl">&amp;</span> A</a>
+        <button type="button" id="menuToggle" class="md:hidden p-2 -mr-2" aria-label="Abrir menu" aria-expanded="false" aria-controls="menuLinks">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <ul id="menuLinks" class="hidden md:flex items-center gap-7 text-sm font-semibold tracking-wide">
+            <li><a href="#inicio" class="hover:opacity-70 transition">Início</a></li>
+            <li><a href="#cerimonia" class="hover:opacity-70 transition">Cerimônia e Festa</a></li>
+            <li class="hidden" data-menu-info><a href="#informacoes" class="hover:opacity-70 transition">Informações</a></li>
+            <li><a href="#rsvp" class="hover:opacity-70 transition">Confirmar Presença</a></li>
+            <li><a href="#presentes" class="hover:opacity-70 transition">Presentes</a></li>
+        </ul>
+    </div>
+</nav>
 
 <!-- Seção Principal (Hero) -->
-<header class="hero-bg text-white shadow-lg">
+<header id="inicio" class="hero-bg text-white shadow-lg">
     <div class="flex flex-col items-center justify-center h-screen bg-[#0f2547]/50 p-4">
         <div class="text-center">
             <p class="script text-xl md:text-2xl mb-4">Com muito amor, começamos um novo capítulo juntos!</p>
@@ -75,7 +172,7 @@
 </header>
 
 <!-- Contagem Regressiva -->
-<section class="bg-white py-12 md:py-20 fade-in">
+<section class="bg-white/70 py-12 md:py-20 fade-in">
     <div class="container mx-auto px-6 text-center">
         <h2 class="text-3xl md:text-4xl font-bold mb-4">Contagem Regressiva</h2>
         <div id="countdown" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto text-center">
@@ -109,8 +206,9 @@
 </div>
 
 <!-- Detalhes do Evento -->
-<section class="py-12 md:py-20 fade-in">
-    <div class="container mx-auto px-6 text-center">
+<section id="cerimonia" class="relative overflow-hidden py-12 md:py-20 fade-in">
+    <img src="flores-topo.webp" alt="" class="flores top-0 left-0 w-32 sm:w-44 md:w-72" loading="lazy">
+    <div class="relative z-10 container mx-auto px-6 text-center">
          <h2 class="text-3xl md:text-4xl font-bold mb-8">Cerimônia e Festa</h2>
         <div class="flex flex-wrap justify-center gap-8">
             <!-- Cerimônia -->
@@ -121,6 +219,22 @@
                 <p class="mb-2"><strong>Horário:</strong> 16:00</p>
                 <p class="mb-4"><strong>Endereço:</strong> Rua Agostinho Franco de Oliveira, 257 – Jardim Parque das Palmeiras</p>
                 <a href="https://www.google.com/maps/search/?api=1&amp;query=Igreja+Matriz+Nossa+Senhora+do+Ros%C3%A1rio%2C+Rua+Agostinho+Franco+de+Oliveira%2C+257%2C+Jardim+Parque+das+Palmeiras" target="_blank" rel="noopener" class="inline-block bg-[#3f6fb5] text-white px-6 py-2 rounded-full hover:bg-[#1b3a6b] transition duration-300">Ver no Mapa</a>
+
+                <!-- Adicionar à agenda -->
+                <div class="mt-6 pt-5 border-t border-blue-100">
+                    <p class="text-sm text-slate-500 mb-3">Adicionar à agenda</p>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <a id="googleCalendar" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-[#3f6fb5] text-[#1b3a6b] text-sm px-4 py-2 rounded-full hover:bg-[#3f6fb5] hover:text-white transition duration-300">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+                            Google Agenda
+                        </a>
+                        <!-- Arquivo casamento.ics: se a data ou o horário mudarem, atualize também esse arquivo -->
+                        <a href="casamento.ics" download="casamento-marcia-alessandro.ics" class="inline-flex items-center gap-2 border border-[#3f6fb5] text-[#1b3a6b] text-sm px-4 py-2 rounded-full hover:bg-[#3f6fb5] hover:text-white transition duration-300">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+                            iPhone / Outlook
+                        </a>
+                    </div>
+                </div>
             </div>
             <!-- Festa: quando tiver as informações, troque o texto abaixo por Horário, Endereço e o botão "Ver no Mapa" (igual ao da cerimônia) -->
             <div class="w-full md:w-5/12 lg:w-1/3 bg-white p-8 rounded-lg shadow-lg">
@@ -133,12 +247,21 @@
 </section>
 
 <!-- Nossa História -->
-<section class="bg-white py-12 md:py-20 fade-in">
-    <div class="container mx-auto px-6 max-w-4xl text-center">
+<section class="relative overflow-hidden bg-white/70 py-12 md:py-20 fade-in">
+    <img src="flores-base.webp" alt="" class="flores bottom-0 right-0 w-24 sm:w-32 md:w-52" loading="lazy">
+    <div class="relative z-10 container mx-auto px-6 max-w-4xl text-center">
         <h2 class="text-3xl md:text-4xl font-bold mb-4">Você está Convidado!</h2>
         <p class="script text-2xl md:text-3xl leading-relaxed text-[#1b3a6b]">
             Será uma alegria compartilhar este momento especial com você!
         </p>
+    </div>
+</section>
+
+<!-- Informações Úteis: aparece sozinha quando a lista "informacoesUteis" (no script) tiver itens -->
+<section id="informacoes" class="hidden py-12 md:py-20 fade-in">
+    <div class="container mx-auto px-6 max-w-4xl text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8">Informações Úteis</h2>
+        <div id="infoList" class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left"></div>
     </div>
 </section>
 
@@ -152,7 +275,7 @@
 </div>
 
 <!-- RSVP -->
-<section id="rsvp" class="bg-white py-12 md:py-20 fade-in">
+<section id="rsvp" class="bg-white/70 py-12 md:py-20 fade-in">
     <div class="container mx-auto px-6 max-w-2xl text-center">
         <h2 class="text-3xl md:text-4xl font-bold mb-4">Confirme sua Presença</h2>
         <p class="mb-8">Por favor, confirme sua presença preenchendo o formulário abaixo.</p>
@@ -171,7 +294,16 @@
                     <option value="no">Não poderei comparecer.</option>
                 </select>
             </div>
+            <!-- Acompanhantes: aparece quando a pessoa responde "Sim" -->
+            <div id="companionsWrap" class="hidden">
+                <select id="companions" name="companions" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3f6fb5]"></select>
+            </div>
             <button type="submit" class="w-full bg-[#3f6fb5] text-white px-6 py-3 rounded-lg hover:bg-[#1b3a6b] transition duration-300 font-semibold">Enviar Confirmação</button>
+            <!-- Confirmar pelo WhatsApp: aparece quando "whatsappConfirmacao" (no script) estiver preenchido -->
+            <a id="whatsappBtn" href="#" target="_blank" rel="noopener" class="hidden w-full items-center justify-center gap-2 border-2 border-[#25D366] text-[#128C7E] px-6 py-3 rounded-lg hover:bg-[#25D366] hover:text-white transition duration-300 font-semibold">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35zM12.04 21.5h-.01a9.45 9.45 0 0 1-4.82-1.32l-.35-.21-3.58.94.96-3.49-.23-.36a9.43 9.43 0 0 1-1.45-5.03c0-5.22 4.25-9.47 9.48-9.47 2.53 0 4.9.99 6.69 2.78a9.4 9.4 0 0 1 2.77 6.7c0 5.22-4.25 9.46-9.46 9.46zm8.05-17.52A11.32 11.32 0 0 0 12.04.65C5.77.65.66 5.75.66 12.03c0 2.01.52 3.96 1.52 5.69L.57 23.6l6.02-1.58a11.36 11.36 0 0 0 5.44 1.39h.01c6.27 0 11.38-5.1 11.38-11.38 0-3.04-1.18-5.9-3.33-8.05z"/></svg>
+                Confirmar pelo WhatsApp
+            </a>
         </form>
         <div id="formMessage" class="mt-4 text-lg"></div>
     </div>
@@ -187,8 +319,9 @@
 </div>
 
 <!-- Lista de Presentes -->
-<section id="presentes" class="py-12 md:py-20 fade-in">
-    <div class="container mx-auto px-6 max-w-5xl text-center">
+<section id="presentes" class="relative overflow-hidden py-12 md:py-20 fade-in">
+    <img src="flores-topo.webp" alt="" class="flores top-0 right-0 w-32 sm:w-44 md:w-72 -scale-x-100" loading="lazy">
+    <div class="relative z-10 container mx-auto px-6 max-w-5xl text-center">
         <h2 class="text-3xl md:text-4xl font-bold mb-4">Lista de Presentes</h2>
         <p class="mb-10 max-w-2xl mx-auto leading-relaxed">
             Sua presença é o nosso maior presente! Mas, se quiser nos presentear, escolha um item abaixo e faça um Pix pelo QR Code. 🎁
@@ -237,6 +370,13 @@
     </div>
 </div>
 
+<!-- Botão de música: aparece quando "musica" (no script) tiver um arquivo -->
+<button type="button" id="musicBtn" class="hidden fixed bottom-4 left-4 z-40 w-12 h-12 rounded-full bg-white/90 text-[#1b3a6b] shadow-lg items-center justify-center hover:bg-white transition" aria-label="Tocar música" aria-pressed="false">
+    <svg id="musicIconPlay" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+    <svg id="musicIconPause" class="w-6 h-6 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+</button>
+<audio id="musicAudio" loop preload="none"></audio>
+
 <!-- Rodapé -->
 <footer class="text-center py-8">
     <p class="flex items-center justify-center">
@@ -280,10 +420,32 @@
 
     // Mostra também um cartão onde o convidado escolhe o valor (true = sim, false = não)
     const permitirValorLivre = true;
+
+    // ===================== CONFIRMAÇÃO DE PRESENÇA =====================
+    // Número de WhatsApp para confirmar presença: 55 + DDD + número, só números (ex.: '5511999998888').
+    // Deixe vazio ('') para esconder o botão.
+    const whatsappConfirmacao = '';
+    // Quantos acompanhantes cada convidado pode informar (0 = não pergunta)
+    const maxAcompanhantes = 4;
+
+    // ===================== INFORMAÇÕES ÚTEIS =====================
+    // A seção só aparece quando houver pelo menos um item. Exemplos:
+    //   { icone: '👔', titulo: 'Traje', texto: 'Esporte fino' },
+    //   { icone: '🚗', titulo: 'Estacionamento', texto: 'Há estacionamento gratuito ao lado da igreja.' },
+    //   { icone: '🏨', titulo: 'Hospedagem', texto: 'Sugestão de hotel para quem vem de fora: ...' },
+    const informacoesUteis = [
+    ];
+
+    // ===================== MÚSICA =====================
+    // Coloque o arquivo de música na mesma pasta do site e escreva o nome aqui (ex.: 'musica.mp3').
+    // Deixe vazio ('') para não mostrar o botão de música.
+    const musica = '';
     // ====================================================================
-    // IMPORTANTE: Altere a data e hora do casamento aqui.
-    // Formato: AAAA-MM-DDTHH:MM:SS (Ano-Mês-DiaT Hora:Minuto:Segundo)
-    const weddingDateStr = '2027-04-03T16:00:00'; // 3 de abril de 2027, às 16:00 (horário da cerimônia)
+
+    // IMPORTANTE: Altere a data e hora do casamento aqui (horário de Brasília).
+    // Formato: AAAA-MM-DDTHH:MM:SS-03:00 (Ano-Mês-DiaT Hora:Minuto:Segundo e o fuso de Brasília)
+    const weddingDateStr = '2027-04-03T16:00:00-03:00'; // 3 de abril de 2027, às 16:00 (horário da cerimônia)
+    const duracaoCerimoniaMin = 90; // usado no "Adicionar à agenda"
     
     // --- LÓGICA DO SCRIPT ---
 
@@ -292,6 +454,87 @@
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('weddingDate').innerText = weddingDateForDisplay.toLocaleDateString('pt-BR', options);
     document.getElementById('ceremonyDate').innerText = weddingDateForDisplay.toLocaleDateString('pt-BR', options);
+
+    // Link do Google Agenda
+    (() => {
+        const fmt = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+        const inicio = new Date(weddingDateStr);
+        const fim = new Date(inicio.getTime() + duracaoCerimoniaMin * 60000);
+        const params = new URLSearchParams({
+            action: 'TEMPLATE',
+            text: 'Casamento de Márcia & Alessandro',
+            dates: `${fmt(inicio)}/${fmt(fim)}`,
+            location: 'Igreja Matriz Nossa Senhora do Rosário, Rua Agostinho Franco de Oliveira, 257 - Jardim Parque das Palmeiras',
+            details: 'Cerimônia de casamento de Márcia & Alessandro.',
+            ctz: 'America/Sao_Paulo',
+        });
+        document.getElementById('googleCalendar').href = 'https://calendar.google.com/calendar/render?' + params.toString();
+    })();
+
+    // Menu fixo: muda de cor ao rolar e abre/fecha no celular
+    const menu = document.getElementById('menu');
+    const menuToggle = document.getElementById('menuToggle');
+    const atualizarMenu = () => menu.classList.toggle('scrolled', window.scrollY > 40);
+    window.addEventListener('scroll', atualizarMenu, { passive: true });
+    atualizarMenu();
+    const fecharMenu = () => {
+        menu.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', 'Abrir menu');
+    };
+    menuToggle.addEventListener('click', () => {
+        const aberto = menu.classList.toggle('open');
+        menuToggle.setAttribute('aria-expanded', aberto);
+        menuToggle.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+    });
+    document.querySelectorAll('#menuLinks a').forEach(a => a.addEventListener('click', fecharMenu));
+
+    // Informações úteis
+    if (informacoesUteis.length) {
+        const infoList = document.getElementById('infoList');
+        informacoesUteis.forEach(info => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow-lg p-6 flex gap-4 items-start';
+            const icone = document.createElement('div');
+            icone.className = 'text-3xl leading-none';
+            icone.textContent = info.icone || '💙';
+            const corpo = document.createElement('div');
+            const titulo = document.createElement('h3');
+            titulo.className = 'text-xl font-semibold mb-1';
+            titulo.textContent = info.titulo;
+            const texto = document.createElement('p');
+            texto.className = 'leading-relaxed';
+            texto.textContent = info.texto;
+            corpo.append(titulo, texto);
+            card.append(icone, corpo);
+            infoList.appendChild(card);
+        });
+        document.getElementById('informacoes').classList.remove('hidden');
+        document.querySelector('[data-menu-info]').classList.remove('hidden');
+    }
+
+    // Música
+    if (musica) {
+        const musicBtn = document.getElementById('musicBtn');
+        const musicAudio = document.getElementById('musicAudio');
+        const iconPlay = document.getElementById('musicIconPlay');
+        const iconPause = document.getElementById('musicIconPause');
+        musicAudio.src = musica;
+        musicBtn.classList.remove('hidden');
+        musicBtn.classList.add('flex');
+        const atualizarBotao = (tocando) => {
+            iconPlay.classList.toggle('hidden', tocando);
+            iconPause.classList.toggle('hidden', !tocando);
+            musicBtn.setAttribute('aria-pressed', tocando);
+            musicBtn.setAttribute('aria-label', tocando ? 'Pausar música' : 'Tocar música');
+        };
+        musicBtn.addEventListener('click', () => {
+            if (musicAudio.paused) musicAudio.play().catch(() => atualizarBotao(false));
+            else musicAudio.pause();
+        });
+        musicAudio.addEventListener('play', () => atualizarBotao(true));
+        musicAudio.addEventListener('pause', () => atualizarBotao(false));
+    }
 
     // Contagem regressiva
     const countdown = () => {
@@ -330,15 +573,51 @@
 
     fadeInElements.forEach(el => observer.observe(el));
 
-const rsvpForm = document.getElementById('rsvpForm');
+    const rsvpForm = document.getElementById('rsvpForm');
     const formMessage = document.getElementById('formMessage');
+    const attendanceSelect = document.getElementById('attendance');
+    const companionsWrap = document.getElementById('companionsWrap');
+    const companionsSelect = document.getElementById('companions');
+
+    // Opções de acompanhantes
+    for (let i = 0; i <= maxAcompanhantes; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i === 0 ? 'Vou sozinho(a)' : `Eu + ${i} acompanhante${i > 1 ? 's' : ''}`;
+        companionsSelect.appendChild(opt);
+    }
+    const atualizarAcompanhantes = () => {
+        const mostrar = maxAcompanhantes > 0 && attendanceSelect.value === 'yes';
+        companionsWrap.classList.toggle('hidden', !mostrar);
+        if (!mostrar) companionsSelect.value = '0';
+    };
+    attendanceSelect.addEventListener('change', atualizarAcompanhantes);
+    atualizarAcompanhantes();
+
+    // Confirmar pelo WhatsApp
+    if (whatsappConfirmacao) {
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        whatsappBtn.classList.remove('hidden');
+        whatsappBtn.classList.add('flex');
+        whatsappBtn.addEventListener('click', () => {
+            const nome = document.getElementById('guestName').value.trim() || '(seu nome)';
+            const vai = attendanceSelect.value !== 'no';
+            const acomp = Number(companionsSelect.value) || 0;
+            let msg = `Olá! Aqui é ${nome}. `;
+            msg += vai
+                ? `Confirmo minha presença no casamento de Márcia & Alessandro${acomp ? ` (com ${acomp} acompanhante${acomp > 1 ? 's' : ''})` : ''}! 💙`
+                : 'Infelizmente não poderei comparecer ao casamento de Márcia & Alessandro.';
+            whatsappBtn.href = `https://wa.me/${whatsappConfirmacao.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+        });
+    }
 
     rsvpForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         // Pega os valores para usar na mensagem de feedback
         const guestName = document.getElementById('guestName').value;
-        const attendance = document.getElementById('attendance').value;
+        const attendance = attendanceSelect.value;
+        const acompanhantes = Number(companionsSelect.value) || 0;
         const formData = new FormData(rsvpForm);
 
         try {
@@ -354,13 +633,15 @@ const rsvpForm = document.getElementById('rsvpForm');
             // Se o envio funcionar, mostra a mensagem de sucesso
             if (response.ok) {
                 if (attendance === 'yes') {
-                    formMessage.textContent = `Obrigado por confirmar, ${guestName}! Esperamos você lá! 😊`;
+                    const extra = acompanhantes ? ` (você + ${acompanhantes} acompanhante${acompanhantes > 1 ? 's' : ''})` : '';
+                    formMessage.textContent = `Obrigado por confirmar, ${guestName}${extra}! Esperamos você lá! 😊`;
                     formMessage.style.color = 'green';
                 } else {
                     formMessage.textContent = `Que pena que você não poderá vir, ${guestName}. Sentiremos sua falta. 😢`;
                     formMessage.style.color = 'orange';
                 }
                 rsvpForm.reset();
+                atualizarAcompanhantes();
             } else {
                  // Se o Formspree retornar um erro
                 throw new Error('Ocorreu um problema ao enviar sua confirmação.');
@@ -375,34 +656,85 @@ const rsvpForm = document.getElementById('rsvpForm');
             setTimeout(() => formMessage.textContent = '', 5000);
         }
     });
-    // --- LÓGICA PARA CRIAR CORAÇÕES DE FUNDO ---
-    function createHearts() {
-        const container = document.getElementById('hearts-background');
-        if (!container) return;
-        const heartCount = 75; // Quantidade de corações
-        const heartSVG = `
-            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>`;
+    // --- FUNDO ANIMADO: AQUARELA + FLORES CAINDO ---
+    function criarFundoAnimado() {
+        const bg = document.getElementById('bg-anim');
+        if (!bg) return;
+        const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const rand = (a, b) => Math.random() * (b - a) + a;
 
-        for (let i = 0; i < heartCount; i++) {
-            const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.innerHTML = heartSVG;
+        // Manchas de aquarela: [cor, esquerda %, topo %, tamanho (vmax), profundidade p/ o mouse]
+        const manchas = [
+            ['#bcd3f1', -8, -6, 42, 60],
+            ['#d6e4f7', 62, -4, 38, -45],
+            ['#9fc0ea', 68, 58, 46, 80],
+            ['#c9dbf4', -6, 62, 40, -70],
+            ['#e3ecf9', 34, 30, 34, 35],
+        ];
+        const camadas = manchas.map(([cor, x, y, tam, prof], i) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'blob-wrap';
+            wrap.style.cssText = `left:${x}%;top:${y}%;width:${tam}vmax;height:${tam}vmax`;
+            const blob = document.createElement('div');
+            blob.className = 'blob';
+            blob.style.cssText = `background:${cor};--dx:${rand(-120, 120)}px;--dy:${rand(-90, 90)}px;animation-duration:${rand(14, 22)}s;animation-delay:-${i * 3}s`;
+            wrap.appendChild(blob);
+            bg.appendChild(wrap);
+            return { el: wrap, prof };
+        });
 
-            const size = Math.random() * 35 + 10; // Tamanho entre 10px e 35px
-            heart.style.width = `${size}px`;
-            heart.style.height = `${size}px`;
-
-            heart.style.top = `${Math.random() * 100}%`;
-            heart.style.left = `${Math.random() * 100}%`;
-            heart.style.opacity = Math.random() * 0.5 + 0.05; // Opacidade entre 0.05 e 0.5
-            heart.style.transform = `rotate(${Math.random() * 360}deg)`;
-
-            container.appendChild(heart);
+        // Florzinhas de hortênsia caindo
+        const petala = (c1, c2) => `<svg viewBox="0 0 40 40"><g fill="${c1}" stroke="${c2}" stroke-width=".6">
+            <ellipse cx="20" cy="10" rx="7" ry="9"/><ellipse cx="30" cy="20" rx="9" ry="7"/>
+            <ellipse cx="20" cy="30" rx="7" ry="9"/><ellipse cx="10" cy="20" rx="9" ry="7"/></g>
+            <circle cx="20" cy="20" r="2.6" fill="#ffffff" opacity=".9"/></svg>`;
+        const cores = [['#a9c6ec', '#7fa3d6'], ['#c7daf4', '#9bb9e3'], ['#8fb3e0', '#5f8ccc']];
+        const qtdFlores = window.innerWidth < 768 ? 8 : 12;
+        for (let i = 0; i < qtdFlores; i++) {
+            const p = document.createElement('div');
+            const [c1, c2] = cores[i % cores.length];
+            p.className = 'petal';
+            p.innerHTML = petala(c1, c2);
+            const tam = rand(16, 28);
+            p.style.cssText = `width:${tam}px;height:${tam}px;left:${rand(0, 100)}%;--dx:${rand(20, 60)}px;animation-duration:${rand(14, 24)}s;animation-delay:-${rand(0, 24)}s`;
+            bg.appendChild(p);
         }
+
+        // No computador: as manchas acompanham o mouse e uma luz suave segue o cursor
+        if (reduzirMovimento || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        const luz = document.createElement('div');
+        luz.className = 'blob-cursor';
+        bg.appendChild(luz);
+
+        let alvoX = 0, alvoY = 0, atualX = 0, atualY = 0;          // posição relativa (-0,5 a 0,5)
+        let mouseX = innerWidth / 2, mouseY = innerHeight / 2;      // posição em pixels
+        let luzX = mouseX, luzY = mouseY;
+        let animando = false;
+
+        const passo = () => {
+            atualX += (alvoX - atualX) * 0.06;
+            atualY += (alvoY - atualY) * 0.06;
+            luzX += (mouseX - luzX) * 0.12;
+            luzY += (mouseY - luzY) * 0.12;
+            camadas.forEach(({ el, prof }) => {
+                el.style.transform = `translate3d(${atualX * prof * 2}px, ${atualY * prof * 2}px, 0)`;
+            });
+            luz.style.transform = `translate3d(${luzX}px, ${luzY}px, 0)`;
+            const parado = Math.abs(alvoX - atualX) < 0.0005 && Math.abs(alvoY - atualY) < 0.0005
+                && Math.abs(mouseX - luzX) < 0.5 && Math.abs(mouseY - luzY) < 0.5;
+            if (parado) { animando = false; return; }
+            requestAnimationFrame(passo);
+        };
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            alvoX = e.clientX / innerWidth - 0.5;
+            alvoY = e.clientY / innerHeight - 0.5;
+            luz.style.opacity = '1';
+            if (!animando) { animando = true; requestAnimationFrame(passo); }
+        }, { passive: true });
+        document.addEventListener('mouseleave', () => { luz.style.opacity = '0'; });
     }
-    createHearts();
+    criarFundoAnimado();
 
     // --- LÓGICA DA LISTA DE PRESENTES E PIX ---
 
